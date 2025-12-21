@@ -4,12 +4,9 @@ from django.urls import path, include
 urlpatterns = [
     path("admin/", admin.site.urls),
 
-    path(
-        "api/",
-        include(("lms.urls", "lms"), namespace="lms"),
-    ),
-    path(
-        "api/",
-        include(("users.urls", "users"), namespace="users"),
-    ),
+    # API LMS
+    path("api/lms/", include("lms.urls", namespace="lms")),
+
+    # API Users
+    path("api/users/", include("users.urls", namespace="users")),
 ]
