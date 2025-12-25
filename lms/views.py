@@ -10,6 +10,12 @@ class CourseViewSet(viewsets.ModelViewSet):
     serializer_class = CourseSerializer
     queryset = Course.objects.all()
 
+    def get_queryset(self):
+        user = self.request.user
+        if user.groups.filter(name="moderators").exists():
+            return Course.objects.all()
+        return Course.objects.filter(owner=user)
+
     def get_permissions(self):
         if self.action in ["list", "retrieve"]:
             self.permission_classes = [IsAuthenticated]
