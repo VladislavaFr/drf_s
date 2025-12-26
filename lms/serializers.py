@@ -1,10 +1,17 @@
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
 
-from lms.models import Course, Lesson
+from lms.models import Course, Lesson, Subscription
+from lms.validators import validate_video_url
 
 
 class LessonSerializer(serializers.ModelSerializer):
+    video_url = serializers.URLField(
+        required=False,
+        allow_null=True,
+        validators=[validate_video_url],
+    )
+
     class Meta:
         model = Lesson
         fields = "__all__"
@@ -18,9 +25,16 @@ class CourseSerializer(serializers.ModelSerializer):
         read_only=True,
         source="lessons"
     )
+    is_subscribed = SerializerMethodField()
 
     def get_lesson_count(self, obj):
         return obj.lessons.count()
+
+    def get_is_subscribed(self, obj):
+        user = self.context["request"].user
+        if user.is_anonymous:
+            return False
+        return Subscription.objects.filter(user=user, course=obj).exists()
 
     class Meta:
         model = Course
@@ -32,5 +46,6 @@ class CourseSerializer(serializers.ModelSerializer):
             "owner",
             "lesson_count",
             "lessons",
+            "is_subscribed",
         )
         read_only_fields = ("owner",)
