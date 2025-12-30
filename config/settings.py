@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv(BASE_DIR / ".env")
 
-SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-dev-key-123456789")
+SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-dev-key")
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = []
@@ -22,9 +22,11 @@ INSTALLED_APPS = [
 
     "rest_framework",
     "django_filters",
+    "drf_spectacular",
 
     "users",
     "lms",
+    "payments",
 ]
 
 MIDDLEWARE = [
@@ -43,13 +45,8 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.IsAuthenticated",
     ),
-    "DEFAULT_FILTER_BACKENDS": [
-        "django_filters.rest_framework.DjangoFilterBackend",
-        "rest_framework.filters.OrderingFilter",
-    ],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
-
-from rest_framework.settings import api_settings
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
@@ -57,24 +54,15 @@ SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
 
+SPECTACULAR_SETTINGS = {
+    "TITLE": "LMS API",
+    "DESCRIPTION": "Документация API",
+    "VERSION": "1.0.0",
+}
+
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
+
 ROOT_URLCONF = "config.urls"
-
-TEMPLATES = [
-    {
-        "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "APP_DIRS": True,
-        "OPTIONS": {
-            "context_processors": [
-                "django.template.context_processors.debug",
-                "django.template.context_processors.request",
-                "django.contrib.auth.context_processors.auth",
-                "django.contrib.messages.context_processors.messages",
-            ],
-        },
-    }
-]
-
-WSGI_APPLICATION = "config.wsgi.application"
 
 DATABASES = {
     "default": {
@@ -84,7 +72,6 @@ DATABASES = {
 }
 
 AUTH_PASSWORD_VALIDATORS = []
-
 AUTH_USER_MODEL = "users.User"
 
 LANGUAGE_CODE = "ru-ru"
